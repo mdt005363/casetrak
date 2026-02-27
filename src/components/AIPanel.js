@@ -3,14 +3,13 @@ import { T } from '../utils/theme';
 import { getAIResponse } from '../utils/helpers';
 import { Btn, TArea } from '../components/UI';
 
-export default function AIPanel({ isOpen, onClose, sops, wiki, contextCase }) {
+export default function AIPanel({ isOpen, onClose, sops, wiki, contextCase, isMobile }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const scrollRef = useRef(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      // Initial greeting based on context
       let greeting;
       if (contextCase) {
         greeting = getAIResponse('troubleshoot this', contextCase, sops, wiki);
@@ -32,11 +31,13 @@ export default function AIPanel({ isOpen, onClose, sops, wiki, contextCase }) {
 
   if (!isOpen) return null;
 
+  const panelWidth = isMobile ? '100vw' : '380px';
+
   return (
     <div style={{
-      position: 'fixed', right: 0, top: 0, bottom: 0, width: '380px', maxWidth: '100vw',
-      backgroundColor: T.surface, borderLeft: `1px solid ${T.borderLt}`, boxShadow: T.shadowLg,
-      display: 'flex', flexDirection: 'column', zIndex: 200,
+      position: 'fixed', right: 0, top: 0, bottom: 0, width: panelWidth, maxWidth: '100vw',
+      backgroundColor: T.surface, borderLeft: isMobile ? 'none' : `1px solid ${T.borderLt}`, boxShadow: T.shadowLg,
+      display: 'flex', flexDirection: 'column', zIndex: 500,
       animation: 'slideInRight .25s ease-out',
     }}>
       <style>{`@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
@@ -54,7 +55,7 @@ export default function AIPanel({ isOpen, onClose, sops, wiki, contextCase }) {
             {contextCase && <div style={{ fontSize: '11px', color: T.textMut }}>Context: {contextCase.title.slice(0, 30)}...</div>}
           </div>
         </div>
-        <button onClick={() => { onClose(); setMessages([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, fontSize: '18px' }}>✕</button>
+        <button onClick={() => { onClose(); setMessages([]); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, fontSize: '22px', padding: '4px' }}>✕</button>
       </div>
 
       {/* Messages */}
@@ -89,24 +90,24 @@ export default function AIPanel({ isOpen, onClose, sops, wiki, contextCase }) {
       </div>
 
       {/* Input */}
-      <div style={{ padding: '12px 16px', borderTop: `1px solid ${T.borderLt}` }}>
+      <div style={{ padding: '12px 16px', borderTop: `1px solid ${T.borderLt}`, paddingBottom: isMobile ? 'max(12px, env(safe-area-inset-bottom))' : '12px' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input
             value={input} onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }}}
             placeholder="Ask me anything..."
             style={{
-              flex: 1, padding: '9px 12px', fontSize: '13px', border: `1.5px solid ${T.border}`,
+              flex: 1, padding: '10px 14px', fontSize: '16px', border: `1.5px solid ${T.border}`,
               borderRadius: '20px', outline: 'none', fontFamily: "'Outfit',system-ui,sans-serif",
             }}
             onFocus={e => e.target.style.borderColor = T.pri}
             onBlur={e => e.target.style.borderColor = T.border}
           />
           <button onClick={send} disabled={!input.trim()} style={{
-            width: '36px', height: '36px', borderRadius: '50%', border: 'none',
+            width: '40px', height: '40px', borderRadius: '50%', border: 'none',
             backgroundColor: T.pri, color: '#fff', cursor: input.trim() ? 'pointer' : 'not-allowed',
             opacity: input.trim() ? 1 : 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '16px',
+            fontSize: '18px', flexShrink: 0,
           }}>↑</button>
         </div>
       </div>

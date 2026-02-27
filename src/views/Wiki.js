@@ -3,7 +3,6 @@ import { T, WIKI_CATEGORIES } from '../utils/theme';
 import { getUser, formatDate, formatDT, generateId, now } from '../utils/helpers';
 import { Card, Badge, Btn, Inp, TArea, Sel, Lbl, Modal, Empty } from '../components/UI';
 
-// Simple markdown renderer
 function renderMD(txt) {
   return txt.split('\n').map((line, i) => {
     if (line.startsWith('## ')) return <h2 key={i} style={{ fontSize: '18px', fontWeight: 750, margin: '20px 0 8px' }}>{line.slice(3)}</h2>;
@@ -19,7 +18,7 @@ function renderMD(txt) {
   });
 }
 
-function WikiDetail({ article, wiki, users, curUser, isAdmin, onUpdate, onBack, onOpenAI }) {
+function WikiDetail({ article, wiki, users, curUser, isAdmin, onUpdate, onBack, onOpenAI, isMobile }) {
   const [suggestion, setSuggestion] = useState('');
   const w = wiki.find(x => x.id === article.id) || article;
 
@@ -34,22 +33,28 @@ function WikiDetail({ article, wiki, users, curUser, isAdmin, onUpdate, onBack, 
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, fontSize: '18px' }}>←</button>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 750, margin: 0 }}>{w.title}</h2>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 750, margin: 0 }}>{w.title}</h2>
           <div style={{ fontSize: '12px', color: T.textMut, marginTop: '2px' }}>v{w.version} · {w.category} · Updated {formatDate(w.updatedAt)}</div>
         </div>
-        <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(null, w)}>AI Help</Btn>
+        {!isMobile && <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(null, w)}>AI Help</Btn>}
       </div>
+
+      {isMobile && (
+        <div style={{ marginBottom: '12px' }}>
+          <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(null, w)} style={{ width: '100%', justifyContent: 'center' }}>AI Help</Btn>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '16px' }}>
         {w.tags.map(t => <Badge key={t} color={T.textSec} bg={T.surfAlt} small>🏷 {t}</Badge>)}
       </div>
 
-      <Card><div style={{ padding: '20px' }}>{renderMD(w.content)}</div></Card>
+      <Card><div style={{ padding: isMobile ? '14px' : '20px' }}>{renderMD(w.content)}</div></Card>
 
       <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '24px 0 10px' }}>Version History</h3>
       {w.versionHistory.map((v, i) => (
-        <div key={i} style={{ display: 'flex', gap: '10px', padding: '6px 0', fontSize: '13px' }}>
+        <div key={i} style={{ display: 'flex', gap: '8px', padding: '6px 0', fontSize: '13px', flexWrap: 'wrap', alignItems: 'center' }}>
           <Badge color={T.pri} bg={T.priBg} small>v{v.version}</Badge>
           <span style={{ color: T.textMut }}>{formatDate(v.date)}</span>
           <span style={{ color: T.textSec }}>{v.notes}</span>
@@ -85,16 +90,16 @@ function WikiDetail({ article, wiki, users, curUser, isAdmin, onUpdate, onBack, 
   );
 }
 
-function WikiForm({ onSubmit, onClose }) {
+function WikiForm({ onSubmit, onClose, isMobile }) {
   const [f, sF] = useState({ title: '', category: '', tags: '', content: '' });
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div><Lbl>Title *</Lbl><Inp value={f.title} onChange={v => sF({...f,title:v})} placeholder="Article title" /></div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
         <div><Lbl>Category</Lbl><Sel value={f.category} onChange={v => sF({...f,category:v})} placeholder="Select" options={WIKI_CATEGORIES.map(c=>({value:c,label:c}))} style={{width:'100%'}} /></div>
         <div><Lbl>Tags (comma-separated)</Lbl><Inp value={f.tags} onChange={v => sF({...f,tags:v})} placeholder="lumber, grades" /></div>
       </div>
-      <div><Lbl>Content (Markdown supported)</Lbl><TArea value={f.content} onChange={v => sF({...f,content:v})} placeholder="Write your article..." rows={10} /></div>
+      <div><Lbl>Content (Markdown supported)</Lbl><TArea value={f.content} onChange={v => sF({...f,content:v})} placeholder="Write your article..." rows={8} /></div>
       <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
         <Btn v="secondary" onClick={onClose}>Cancel</Btn>
         <Btn onClick={() => { if (f.title) onSubmit(f); }} disabled={!f.title}>Publish</Btn>
@@ -103,18 +108,18 @@ function WikiForm({ onSubmit, onClose }) {
   );
 }
 
-export default function Wiki({ wiki, users, curUser, selWiki, setSelWiki, onUpdateWiki, onCreateWiki, onOpenAI }) {
+export default function Wiki({ wiki, users, curUser, selWiki, setSelWiki, onUpdateWiki, onCreateWiki, onOpenAI, isMobile }) {
   const [showNew, setShowNew] = useState(false);
   const isAdmin = curUser.role === 'admin';
 
   if (selWiki) {
-    return <WikiDetail article={selWiki} wiki={wiki} users={users} curUser={curUser} isAdmin={isAdmin} onUpdate={(id, data) => onUpdateWiki(id, data)} onBack={() => setSelWiki(null)} onOpenAI={onOpenAI} />;
+    return <WikiDetail article={selWiki} wiki={wiki} users={users} curUser={curUser} isAdmin={isAdmin} onUpdate={(id, data) => onUpdateWiki(id, data)} onBack={() => setSelWiki(null)} onOpenAI={onOpenAI} isMobile={isMobile} />;
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 800, margin: 0 }}>Store Wiki</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <h1 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 800, margin: 0 }}>Store Wiki</h1>
         <div style={{ display: 'flex', gap: '6px' }}>
           <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(null, null)}>AI Write</Btn>
           {isAdmin && <Btn s="sm" icon={<span>+</span>} onClick={() => setShowNew(true)}>New Article</Btn>}
@@ -124,11 +129,11 @@ export default function Wiki({ wiki, users, curUser, selWiki, setSelWiki, onUpda
       {wiki.length === 0 ? <Empty icon="📖" title="No articles yet" desc="Start your knowledge base" /> :
         wiki.map(w => (
           <Card key={w.id} onClick={() => setSelWiki(w)} style={{ marginBottom: '8px' }}>
-            <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ padding: isMobile ? '12px' : '14px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: T.rad, backgroundColor: T.purpBg, color: T.purp, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '16px' }}>📖</div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '14px', fontWeight: 650 }}>{w.title}</div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap' }}>
                   <Badge color={T.purp} bg={T.purpBg} small>{w.category}</Badge>
                   <span style={{ fontSize: '11px', color: T.textMut }}>v{w.version} · Updated {formatDate(w.updatedAt)}</span>
                 </div>
@@ -139,7 +144,7 @@ export default function Wiki({ wiki, users, curUser, selWiki, setSelWiki, onUpda
       }
 
       <Modal isOpen={showNew} onClose={() => setShowNew(false)} title="New Wiki Article" width={640}>
-        <WikiForm onSubmit={(d) => { onCreateWiki(d); setShowNew(false); }} onClose={() => setShowNew(false)} />
+        <WikiForm onSubmit={(d) => { onCreateWiki(d); setShowNew(false); }} onClose={() => setShowNew(false)} isMobile={isMobile} />
       </Modal>
     </div>
   );

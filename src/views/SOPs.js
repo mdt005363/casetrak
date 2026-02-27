@@ -3,7 +3,7 @@ import { T, PRIORITIES } from '../utils/theme';
 import { getUser, formatDate, formatDT, generateId, now } from '../utils/helpers';
 import { Card, Badge, Btn, Inp, TArea, Sel, Lbl, Modal, Empty, Avatar } from '../components/UI';
 
-function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
+function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack, isMobile }) {
   const [suggestion, setSuggestion] = useState('');
   const s = sops.find(x => x.id === sop.id) || sop;
 
@@ -23,8 +23,8 @@ function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, fontSize: '18px' }}>←</button>
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 750, margin: 0 }}>{s.title}</h2>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 750, margin: 0 }}>{s.title}</h2>
           <div style={{ fontSize: '12px', color: T.textMut, marginTop: '2px' }}>v{s.version} · {s.category} · Updated {formatDate(s.updatedAt)}</div>
         </div>
       </div>
@@ -33,7 +33,7 @@ function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
         {s.tags.map(t => <Badge key={t} color={T.textSec} bg={T.surfAlt} small>🏷 {t}</Badge>)}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', marginBottom: '20px' }}>
         {s.estimatedTime && <Card><div style={{ padding: '12px 14px', fontSize: '13px' }}>⏱ <strong>Est. Time:</strong> {s.estimatedTime}</div></Card>}
         {s.tools.length > 0 && <Card><div style={{ padding: '12px 14px', fontSize: '13px' }}>
           <div style={{ fontWeight: 650, marginBottom: '6px' }}>🔧 Tools Required</div>
@@ -49,20 +49,19 @@ function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
       {s.steps.map((step, i) => (
         <div key={i} style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
           <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: T.priBg, color: T.pri, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 800, flexShrink: 0 }}>{step.order}</div>
-          <div><div style={{ fontSize: '14px', fontWeight: 650 }}>{step.title}</div><p style={{ fontSize: '13px', color: T.textSec, margin: '3px 0 0', lineHeight: 1.5 }}>{step.description}</p></div>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: '14px', fontWeight: 650 }}>{step.title}</div><p style={{ fontSize: '13px', color: T.textSec, margin: '3px 0 0', lineHeight: 1.5 }}>{step.description}</p></div>
         </div>
       ))}
 
       <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '24px 0 10px' }}>Version History</h3>
       {s.versionHistory.map((v, i) => (
-        <div key={i} style={{ display: 'flex', gap: '10px', padding: '6px 0', fontSize: '13px', borderBottom: i < s.versionHistory.length - 1 ? `1px solid ${T.borderLt}` : 'none' }}>
+        <div key={i} style={{ display: 'flex', gap: '8px', padding: '6px 0', fontSize: '13px', borderBottom: i < s.versionHistory.length - 1 ? `1px solid ${T.borderLt}` : 'none', flexWrap: 'wrap', alignItems: 'center' }}>
           <Badge color={T.pri} bg={T.priBg} small>v{v.version}</Badge>
           <span style={{ color: T.textMut }}>{formatDate(v.date)}</span>
           <span style={{ color: T.textSec }}>{v.notes}</span>
         </div>
       ))}
 
-      {/* Suggest improvement (non-admin) */}
       {!isAdmin && (
         <div style={{ marginTop: '24px', padding: '14px', backgroundColor: T.surfAlt, borderRadius: T.rad, border: `1px solid ${T.borderLt}` }}>
           <div style={{ fontSize: '13px', fontWeight: 650, marginBottom: '8px' }}>💡 Suggest an Improvement</div>
@@ -71,7 +70,6 @@ function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
         </div>
       )}
 
-      {/* Admin: review suggestions */}
       {isAdmin && s.suggestions.filter(x => x.status === 'pending').length > 0 && (
         <div style={{ marginTop: '20px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '0 0 10px' }}>Pending Suggestions ({s.suggestions.filter(x => x.status === 'pending').length})</h3>
@@ -93,7 +91,7 @@ function SOPDetail({ sop, sops, users, curUser, isAdmin, onUpdate, onBack }) {
   );
 }
 
-function SOPForm({ categories, onSubmit, onClose }) {
+function SOPForm({ categories, onSubmit, onClose, isMobile }) {
   const [f, sF] = useState({ title: '', category: '', tags: '', estimatedTime: '', tools: '', safety: '', steps: [{ order: 1, title: '', description: '' }] });
   const addStep = () => sF({ ...f, steps: [...f.steps, { order: f.steps.length + 1, title: '', description: '' }] });
   const updateStep = (i, k, v) => { const s = [...f.steps]; s[i] = { ...s[i], [k]: v }; sF({ ...f, steps: s }); };
@@ -101,7 +99,7 @@ function SOPForm({ categories, onSubmit, onClose }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div><Lbl>SOP Title *</Lbl><Inp value={f.title} onChange={v => sF({...f,title:v})} placeholder="e.g., POS Terminal Troubleshooting" /></div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
         <div><Lbl>Category</Lbl><Sel value={f.category} onChange={v => sF({...f,category:v})} placeholder="Select" options={categories.map(c=>({value:c,label:c}))} style={{width:'100%'}} /></div>
         <div><Lbl>Est. Time</Lbl><Inp value={f.estimatedTime} onChange={v => sF({...f,estimatedTime:v})} placeholder="15-30 min" /></div>
       </div>
@@ -112,7 +110,7 @@ function SOPForm({ categories, onSubmit, onClose }) {
         <Lbl>Steps</Lbl>
         {f.steps.map((s, i) => (
           <div key={i} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: T.pri, minWidth: '20px', paddingTop: '8px' }}>{i+1}.</span>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: T.pri, minWidth: '20px', paddingTop: '10px' }}>{i+1}.</span>
             <div style={{ flex: 1 }}>
               <Inp value={s.title} onChange={v => updateStep(i,'title',v)} placeholder="Step title" style={{ marginBottom: '4px' }} />
               <Inp value={s.description} onChange={v => updateStep(i,'description',v)} placeholder="Step description" />
@@ -129,31 +127,31 @@ function SOPForm({ categories, onSubmit, onClose }) {
   );
 }
 
-export default function SOPs({ sops, users, categories, curUser, selSOP, setSelSOP, onUpdateSOP, onCreateSOP }) {
+export default function SOPs({ sops, users, categories, curUser, selSOP, setSelSOP, onUpdateSOP, onCreateSOP, isMobile }) {
   const [showNew, setShowNew] = useState(false);
   const isAdmin = curUser.role === 'admin';
 
   if (selSOP) {
-    return <SOPDetail sop={selSOP} sops={sops} users={users} curUser={curUser} isAdmin={isAdmin} onUpdate={(id, data) => onUpdateSOP(id, data)} onBack={() => setSelSOP(null)} />;
+    return <SOPDetail sop={selSOP} sops={sops} users={users} curUser={curUser} isAdmin={isAdmin} onUpdate={(id, data) => onUpdateSOP(id, data)} onBack={() => setSelSOP(null)} isMobile={isMobile} />;
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 800, margin: 0 }}>Standard Operating Procedures</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+        <h1 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 800, margin: 0 }}>{isMobile ? 'SOPs' : 'Standard Operating Procedures'}</h1>
         {isAdmin && <Btn s="sm" icon={<span>+</span>} onClick={() => setShowNew(true)}>New SOP</Btn>}
       </div>
 
       {sops.length === 0 ? <Empty icon="📋" title="No SOPs yet" desc="Create your first standard procedure" /> :
         sops.map(s => (
           <Card key={s.id} onClick={() => setSelSOP(s)} style={{ marginBottom: '8px' }}>
-            <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ padding: isMobile ? '12px' : '14px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '38px', height: '38px', borderRadius: T.rad, backgroundColor: T.priBg, color: T.pri, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '16px' }}>📋</div>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '14px', fontWeight: 650 }}>{s.title}</div>
-                <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
                   <Badge color={T.textSec} bg={T.surfAlt} small>{s.category}</Badge>
-                  <span style={{ fontSize: '11px', color: T.textMut }}>v{s.version} · {s.steps.length} steps · {s.estimatedTime}</span>
+                  <span style={{ fontSize: '11px', color: T.textMut }}>v{s.version} · {s.steps.length} steps</span>
                   {isAdmin && s.suggestions.filter(x => x.status === 'pending').length > 0 && (
                     <Badge color={T.acc} bg={T.accBg} small>{s.suggestions.filter(x => x.status === 'pending').length} suggestion(s)</Badge>
                   )}
@@ -165,7 +163,7 @@ export default function SOPs({ sops, users, categories, curUser, selSOP, setSelS
       }
 
       <Modal isOpen={showNew} onClose={() => setShowNew(false)} title="Create New SOP" width={640}>
-        <SOPForm categories={categories} onSubmit={(d) => { onCreateSOP(d); setShowNew(false); }} onClose={() => setShowNew(false)} />
+        <SOPForm categories={categories} onSubmit={(d) => { onCreateSOP(d); setShowNew(false); }} onClose={() => setShowNew(false)} isMobile={isMobile} />
       </Modal>
     </div>
   );

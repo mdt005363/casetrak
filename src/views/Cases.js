@@ -4,21 +4,21 @@ import { getPriority, getStatus, getUser, isOverdue, formatDate, formatDT, gener
 import { Card, Badge, Avatar, Btn, Inp, TArea, Sel, Lbl, Modal, Empty } from '../components/UI';
 
 // ── Case Row ──
-function CaseRow({ c, users, onClick }) {
+function CaseRow({ c, users, onClick, isMobile }) {
   const p = getPriority(c.priority), s = getStatus(c.status), a = getUser(c.assignedTo, users), od = isOverdue(c.dueDate, c.status);
   return (
     <Card onClick={onClick} style={{ marginBottom: '6px' }}>
-      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ padding: isMobile ? '12px' : '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ width: '3px', height: '36px', borderRadius: '2px', backgroundColor: p.color, flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: '13.5px', fontWeight: 650, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
             {c.title} {od && <Badge color={T.err} bg={T.errBg} small>Overdue</Badge>}
           </div>
-          <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
             <Badge color={s.color} bg={s.bg} small>{s.label}</Badge>
             <Badge color={p.color} bg={p.bg} small>{p.label}</Badge>
-            <span style={{ fontSize: '11.5px', color: T.textMut }}>{c.category}</span>
-            {c.dueDate && <span style={{ fontSize: '11.5px', color: od ? T.err : T.textMut }}>📅 {formatDate(c.dueDate)}</span>}
+            {!isMobile && <span style={{ fontSize: '11.5px', color: T.textMut }}>{c.category}</span>}
+            {!isMobile && c.dueDate && <span style={{ fontSize: '11.5px', color: od ? T.err : T.textMut }}>📅 {formatDate(c.dueDate)}</span>}
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
@@ -31,17 +31,17 @@ function CaseRow({ c, users, onClick }) {
 }
 
 // ── New Case Form ──
-function CaseForm({ categories, users, onSubmit, onClose }) {
+function CaseForm({ categories, users, onSubmit, onClose, isMobile }) {
   const [f, sF] = useState({ title: '', description: '', category: '', priority: 'medium', assignedTo: '', dueDate: '' });
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div><Lbl>Title *</Lbl><Inp value={f.title} onChange={v => sF({...f, title: v})} placeholder="Brief description of the issue" /></div>
       <div><Lbl>Description</Lbl><TArea value={f.description} onChange={v => sF({...f, description: v})} placeholder="Detailed description..." rows={3} /></div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
         <div><Lbl>Category *</Lbl><Sel value={f.category} onChange={v => sF({...f, category: v})} placeholder="Select" options={categories.map(c=>({value:c,label:c}))} style={{width:'100%'}} /></div>
         <div><Lbl>Priority</Lbl><Sel value={f.priority} onChange={v => sF({...f, priority: v})} options={PRIORITIES} style={{width:'100%'}} /></div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '10px' }}>
         <div><Lbl>Assign To</Lbl><Sel value={f.assignedTo} onChange={v => sF({...f, assignedTo: v})} placeholder="Unassigned" options={users.filter(u=>u.role!=='viewer').map(u=>({value:u.id,label:u.name}))} style={{width:'100%'}} /></div>
         <div><Lbl>Due Date</Lbl><Inp type="date" value={f.dueDate} onChange={v => sF({...f, dueDate: v})} /></div>
       </div>
@@ -54,7 +54,7 @@ function CaseForm({ categories, users, onSubmit, onClose }) {
 }
 
 // ── Case Detail ──
-function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, onAddComment, onDelete, onBack, onOpenAI, onViewSOP }) {
+function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, onAddComment, onDelete, onBack, onOpenAI, onViewSOP, isMobile }) {
   const c = cases.find(x => x.id === caseData.id) || caseData;
   const [newCmt, setNewCmt] = useState('');
   const [showMentions, setShowMentions] = useState(false);
@@ -63,11 +63,17 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
         <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, display: 'flex', padding: '4px', fontSize: '18px' }}>←</button>
-        <h2 style={{ fontSize: '18px', fontWeight: 750, margin: 0, flex: 1 }}>{c.title}</h2>
-        <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(c)}>AI Help</Btn>
+        <h2 style={{ fontSize: isMobile ? '16px' : '18px', fontWeight: 750, margin: 0, flex: 1 }}>{c.title}</h2>
+        {!isMobile && <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(c)}>AI Help</Btn>}
       </div>
+
+      {isMobile && (
+        <div style={{ marginBottom: '12px' }}>
+          <Btn v="accent" s="sm" icon={<span>✨</span>} onClick={() => onOpenAI(c)} style={{ width: '100%', justifyContent: 'center' }}>AI Help</Btn>
+        </div>
+      )}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '16px' }}>
         <Badge color={s.color} bg={s.bg}>{s.label}</Badge>
@@ -78,7 +84,6 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
 
       <p style={{ fontSize: '14px', color: T.textSec, lineHeight: 1.6, margin: '0 0 20px', whiteSpace: 'pre-wrap' }}>{c.description || 'No description.'}</p>
 
-      {/* Suggested SOPs */}
       {suggested.length > 0 && (
         <Card style={{ marginBottom: '16px', borderLeft: `3px solid ${T.pri}` }}>
           <div style={{ padding: '14px 16px' }}>
@@ -92,8 +97,7 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
         </Card>
       )}
 
-      {/* Meta */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '20px' }}>
         <div><Lbl>Assigned To</Lbl>
           {canEdit ? <Sel value={c.assignedTo || ''} onChange={v => onUpdate(c.id, { assignedTo: v || null, status: v && c.status === 'open' ? 'assigned' : c.status })} placeholder="Unassigned" options={users.filter(u=>u.role!=='viewer').map(u=>({value:u.id,label:u.name}))} style={{width:'100%'}} /> : <div style={{ fontSize: '13px', padding: '6px 0' }}>{getUser(c.assignedTo, users)?.name || 'Unassigned'}</div>}
         </div>
@@ -102,7 +106,6 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
         </div>
       </div>
 
-      {/* Status transitions */}
       {(canEdit || curUser.id === c.assignedTo) && NEXT_STATUS[c.status]?.length > 0 && (
         <div style={{ padding: '14px', backgroundColor: T.surfAlt, borderRadius: T.rad, marginBottom: '20px', border: `1px solid ${T.borderLt}` }}>
           <Lbl>Update Status</Lbl>
@@ -112,27 +115,25 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
         </div>
       )}
 
-      {/* Comments */}
       <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '0 0 12px' }}>💬 Comments ({c.comments.length})</h3>
       {c.comments.map(cm => { const au = getUser(cm.userId, users); return (
         <div key={cm.id} style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
           <Avatar user={au} />
-          <div>
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'baseline', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12.5px', fontWeight: 650 }}>{au?.name}</span>
               <span style={{ fontSize: '11px', color: T.textMut }}>{formatDT(cm.createdAt)}</span>
             </div>
-            <p style={{ fontSize: '13.5px', color: T.textSec, margin: '3px 0 0', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '13.5px', color: T.textSec, margin: '3px 0 0', lineHeight: 1.5, wordBreak: 'break-word' }}>
               {cm.text.split(/(@\w+ \w+)/g).map((pt, i) => pt.startsWith('@') ? <span key={i} style={{ color: T.pri, fontWeight: 650 }}>{pt}</span> : pt)}
             </p>
           </div>
         </div>
       );})}
 
-      {/* New comment */}
       {curUser.role !== 'viewer' && (
         <div style={{ display: 'flex', gap: '8px', marginTop: '12px', position: 'relative' }}>
-          <Avatar user={curUser} />
+          {!isMobile && <Avatar user={curUser} />}
           <div style={{ flex: 1 }}>
             <TArea value={newCmt} onChange={setNewCmt} placeholder="Add a comment... Type @ to mention" rows={2} />
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
@@ -140,10 +141,10 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
               <Btn s="sm" onClick={() => { if (newCmt.trim()) { onAddComment(c.id, newCmt); setNewCmt(''); }}} disabled={!newCmt.trim()}>Post</Btn>
             </div>
             {showMentions && (
-              <div style={{ position: 'absolute', bottom: '100%', left: '38px', backgroundColor: T.surface, border: `1px solid ${T.border}`, borderRadius: T.rad, boxShadow: T.shadowMd, padding: '4px', zIndex: 10 }}>
+              <div style={{ position: 'absolute', bottom: '100%', left: isMobile ? '0' : '38px', right: isMobile ? '0' : 'auto', backgroundColor: T.surface, border: `1px solid ${T.border}`, borderRadius: T.rad, boxShadow: T.shadowMd, padding: '4px', zIndex: 10 }}>
                 {users.map(u => (
                   <div key={u.id} onClick={() => { setNewCmt(p => p + `@${u.name} `); setShowMentions(false); }}
-                    style={{ padding: '7px 10px', cursor: 'pointer', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '7px' }}
+                    style={{ padding: '8px 10px', cursor: 'pointer', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '7px' }}
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = T.surfAlt}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                     <Avatar user={u} size="sm" />{u.name}
@@ -159,7 +160,7 @@ function CaseDetail({ caseData, cases, users, sops, curUser, canEdit, onUpdate, 
 }
 
 // ── Main Cases View ──
-export default function Cases({ cases, users, sops, categories, curUser, selCase, setSelCase, onCreateCase, onUpdateCase, onAddComment, onDeleteCase, onOpenAI, onViewSOP }) {
+export default function Cases({ cases, users, sops, categories, curUser, selCase, setSelCase, onCreateCase, onUpdateCase, onAddComment, onDeleteCase, onOpenAI, onViewSOP, isMobile }) {
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -179,25 +180,25 @@ export default function Cases({ cases, users, sops, categories, curUser, selCase
   if (selCase) {
     return <CaseDetail caseData={selCase} cases={cases} users={users} sops={sops} curUser={curUser} canEdit={canEdit}
       onUpdate={onUpdateCase} onAddComment={onAddComment} onDelete={onDeleteCase}
-      onBack={() => setSelCase(null)} onOpenAI={onOpenAI} onViewSOP={onViewSOP} />;
+      onBack={() => setSelCase(null)} onOpenAI={onOpenAI} onViewSOP={onViewSOP} isMobile={isMobile} />;
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 800, margin: 0 }}>Cases</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+        <h1 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 800, margin: 0 }}>Cases</h1>
         <div style={{ display: 'flex', gap: '6px' }}>
           <Btn v="ghost" s="sm" onClick={() => setShowFilters(!showFilters)}>🔽 Filters</Btn>
           {canEdit && <Btn s="sm" icon={<span>+</span>} onClick={() => setShowNew(true)}>New Case</Btn>}
         </div>
       </div>
 
-      <div style={{ position: 'relative', marginBottom: '12px' }}>
+      <div style={{ marginBottom: '12px' }}>
         <Inp value={search} onChange={setSearch} placeholder="🔍  Search cases..." />
       </div>
 
       {showFilters && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '6px', marginBottom: '12px', padding: '12px', backgroundColor: T.surfAlt, borderRadius: T.rad, border: `1px solid ${T.borderLt}` }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fit, minmax(140px, 1fr))', gap: '6px', marginBottom: '12px', padding: '12px', backgroundColor: T.surfAlt, borderRadius: T.rad, border: `1px solid ${T.borderLt}` }}>
           <Sel value={filters.status} onChange={v => setFilters({...filters, status: v})} placeholder="All Status" options={STATUSES} style={{width:'100%'}} />
           <Sel value={filters.priority} onChange={v => setFilters({...filters, priority: v})} placeholder="All Priority" options={PRIORITIES} style={{width:'100%'}} />
           <Sel value={filters.category} onChange={v => setFilters({...filters, category: v})} placeholder="All Categories" options={categories.map(c=>({value:c,label:c}))} style={{width:'100%'}} />
@@ -206,10 +207,10 @@ export default function Cases({ cases, users, sops, categories, curUser, selCase
       )}
 
       {filtered.length === 0 ? <Empty icon="📋" title="No cases found" desc="Adjust filters or create a new case" /> :
-        filtered.map(c => <CaseRow key={c.id} c={c} users={users} onClick={() => setSelCase(c)} />)}
+        filtered.map(c => <CaseRow key={c.id} c={c} users={users} onClick={() => setSelCase(c)} isMobile={isMobile} />)}
 
       <Modal isOpen={showNew} onClose={() => setShowNew(false)} title="Create New Case">
-        <CaseForm categories={categories} users={users} onSubmit={(d) => { onCreateCase(d); setShowNew(false); }} onClose={() => setShowNew(false)} />
+        <CaseForm categories={categories} users={users} onSubmit={(d) => { onCreateCase(d); setShowNew(false); }} onClose={() => setShowNew(false)} isMobile={isMobile} />
       </Modal>
     </div>
   );

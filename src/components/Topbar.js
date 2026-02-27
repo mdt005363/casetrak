@@ -2,12 +2,17 @@ import React from 'react';
 import { T } from '../utils/theme';
 import { formatDT } from '../utils/helpers';
 
-export default function Topbar({ notifs, setNotifs, showNotifs, setShowNotifs, setSideOpen, cases, onSelectCase, onNavigate }) {
+export default function Topbar({ notifs, setNotifs, showNotifs, setShowNotifs, setSideOpen, cases, onSelectCase, onNavigate, isMobile }) {
   const unread = notifs.filter(n => !n.read).length;
 
   return (
-    <header style={{ height: '52px', backgroundColor: T.surface, borderBottom: `1px solid ${T.borderLt}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 18px', flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
-      <button onClick={() => setSideOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textSec, padding: '4px', fontSize: '20px' }}>☰</button>
+    <header style={{ height: '52px', backgroundColor: T.surface, borderBottom: `1px solid ${T.borderLt}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', flexShrink: 0, position: 'sticky', top: 0, zIndex: 40 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <button onClick={() => setSideOpen(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textSec, padding: '6px', fontSize: '22px', display: 'flex', alignItems: 'center' }}>☰</button>
+        {isMobile && (
+          <span style={{ fontSize: '14px', fontWeight: 700, color: T.text }}>CaseTrak</span>
+        )}
+      </div>
       <div style={{ flex: 1 }} />
       <div style={{ position: 'relative' }}>
         <button onClick={() => setShowNotifs(!showNotifs)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textSec, padding: '6px', position: 'relative', fontSize: '18px' }}>
@@ -16,7 +21,7 @@ export default function Topbar({ notifs, setNotifs, showNotifs, setShowNotifs, s
         </button>
 
         {showNotifs && (
-          <div style={{ position: 'absolute', right: 0, top: '100%', width: '300px', backgroundColor: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radLg, boxShadow: T.shadowLg, zIndex: 200, maxHeight: '360px', overflowY: 'auto' }}>
+          <div style={{ position: 'absolute', right: 0, top: '100%', width: isMobile ? 'calc(100vw - 28px)' : '300px', maxWidth: '340px', backgroundColor: T.surface, border: `1px solid ${T.border}`, borderRadius: T.radLg, boxShadow: T.shadowLg, zIndex: 200, maxHeight: '360px', overflowY: 'auto' }}>
             <div style={{ padding: '10px 14px', borderBottom: `1px solid ${T.borderLt}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '13px', fontWeight: 750 }}>Notifications</span>
               <button onClick={() => setNotifs(p => p.map(n => ({ ...n, read: true })))} style={{ fontSize: '11.5px', color: T.pri, background: 'none', border: 'none', cursor: 'pointer', fontWeight: 650 }}>Mark all read</button>

@@ -3,7 +3,7 @@ import { T } from '../utils/theme';
 import { isOverdue, getPriority, getStatus, getUser, formatDate } from '../utils/helpers';
 import { Card, Badge, Avatar } from '../components/UI';
 
-export default function Dashboard({ cases, categories, users, onSelectCase, onNavigate }) {
+export default function Dashboard({ cases, categories, users, onSelectCase, onNavigate, isMobile }) {
   const stats = useMemo(() => {
     const s = { total: cases.length, open: 0, active: 0, done: 0, overdue: 0, critical: 0, byCat: {}, byUser: {} };
     cases.forEach(c => {
@@ -29,20 +29,20 @@ export default function Dashboard({ cases, categories, users, onSelectCase, onNa
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 800, margin: '0 0 20px' }}>Dashboard</h1>
+      <h1 style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 800, margin: '0 0 16px' }}>Dashboard</h1>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: '10px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(auto-fit, minmax(145px, 1fr))', gap: isMobile ? '8px' : '10px', marginBottom: '20px' }}>
         {statCards.map(s => (
-          <div key={s.l} style={{ backgroundColor: T.surface, borderRadius: T.radLg, padding: '16px 18px', border: `1px solid ${T.borderLt}`, boxShadow: T.shadow }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: T.textMut, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.l}</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: s.c, marginTop: '2px' }}>{s.v}</div>
+          <div key={s.l} style={{ backgroundColor: T.surface, borderRadius: T.radLg, padding: isMobile ? '12px' : '16px 18px', border: `1px solid ${T.borderLt}`, boxShadow: T.shadow }}>
+            <div style={{ fontSize: isMobile ? '10px' : '11px', fontWeight: 700, color: T.textMut, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.l}</div>
+            <div style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 800, color: s.c, marginTop: '2px' }}>{s.v}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
         {/* By Category */}
-        <Card><div style={{ padding: '18px' }}>
+        <Card><div style={{ padding: isMobile ? '14px' : '18px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '0 0 14px' }}>Cases by Category</h3>
           {categories.map(cat => { const cnt = stats.byCat[cat] || 0; return (
             <div key={cat} style={{ marginBottom: '8px' }}>
@@ -57,7 +57,7 @@ export default function Dashboard({ cases, categories, users, onSelectCase, onNa
         </div></Card>
 
         {/* Workload */}
-        <Card><div style={{ padding: '18px' }}>
+        <Card><div style={{ padding: isMobile ? '14px' : '18px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '0 0 14px' }}>Workload</h3>
           {users.filter(u => u.role !== 'viewer').map(u => { const cnt = stats.byUser[u.id] || 0; return (
             <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
@@ -69,22 +69,22 @@ export default function Dashboard({ cases, categories, users, onSelectCase, onNa
         </div></Card>
 
         {/* Recent Cases */}
-        <Card style={{ gridColumn: '1 / -1' }}><div style={{ padding: '18px' }}>
+        <Card style={{ gridColumn: isMobile ? '1' : '1 / -1' }}><div style={{ padding: isMobile ? '14px' : '18px' }}>
           <h3 style={{ fontSize: '14px', fontWeight: 750, margin: '0 0 14px' }}>Recent Cases</h3>
           {cases.slice(0, 5).map(c => {
             const p = getPriority(c.priority), s = getStatus(c.status), a = getUser(c.assignedTo, users), od = isOverdue(c.dueDate, c.status);
             return (
               <Card key={c.id} onClick={() => { onNavigate('cases'); onSelectCase(c); }} style={{ marginBottom: '6px' }}>
-                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{ width: '3px', height: '36px', borderRadius: '2px', backgroundColor: p.color, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '13.5px', fontWeight: 650, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                       {c.title} {od && <Badge color={T.err} bg={T.errBg} small>Overdue</Badge>}
                     </div>
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '5px', marginTop: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
                       <Badge color={s.color} bg={s.bg} small>{s.label}</Badge>
                       <Badge color={p.color} bg={p.bg} small>{p.label}</Badge>
-                      <span style={{ fontSize: '11.5px', color: T.textMut }}>{c.category}</span>
+                      {!isMobile && <span style={{ fontSize: '11.5px', color: T.textMut }}>{c.category}</span>}
                     </div>
                   </div>
                   {a && <Avatar user={a} size="sm" />}

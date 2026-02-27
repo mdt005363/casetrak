@@ -10,10 +10,14 @@
 <title>CaseTrak</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Outfit',system-ui,sans-serif;background:#F0F1F5;color:#1A1D26}
+  body{font-family:'Outfit',system-ui,sans-serif;background:#F0F1F5;color:#1A1D26;-webkit-text-size-adjust:100%}
   ::-webkit-scrollbar{width:5px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:#E2E4EA;border-radius:3px}
+  @media(max-width:768px){
+    body{font-size:15px}
+    input,select,textarea,button{font-size:16px!important}
+  }
 </style>
 </head>
 <body>

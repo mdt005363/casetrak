@@ -30,10 +30,10 @@ export const Btn = ({ children, onClick, v = 'primary', s = 'md', icon, disabled
     accent: { bg: T.accBg, c: T.acc, h: '#FFE0D0', bd: 'none' },
   };
   const st = vars[v] || vars.primary;
-  const pad = s === 'sm' ? '5px 11px' : s === 'lg' ? '11px 22px' : '7px 15px';
-  const fs = s === 'sm' ? '12.5px' : '13.5px';
+  const pad = s === 'sm' ? '6px 12px' : s === 'lg' ? '12px 22px' : '8px 16px';
+  const fs = s === 'sm' ? '13px' : '14px';
   return (
-    <button onClick={onClick} disabled={disabled} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: pad, fontSize: fs, fontWeight: 650, background: st.bg, color: st.c, border: st.bd, borderRadius: T.radSm, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition: 'all .15s', fontFamily: "'Outfit',system-ui,sans-serif", ...cs }}>
+    <button onClick={onClick} disabled={disabled} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: pad, fontSize: fs, fontWeight: 650, background: st.bg, color: st.c, border: st.bd, borderRadius: T.radSm, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1, transition: 'all .15s', fontFamily: "'Outfit',system-ui,sans-serif", WebkitTapHighlightColor: 'transparent', minHeight: '36px', ...cs }}>
       {icon}{children}
     </button>
   );
@@ -42,21 +42,21 @@ export const Btn = ({ children, onClick, v = 'primary', s = 'md', icon, disabled
 // ── Input ──
 export const Inp = ({ value, onChange, placeholder, type = 'text', style: cs, ...p }) => (
   <input type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
-    style={{ padding: '7px 11px', fontSize: '13.5px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: "'Outfit',system-ui,sans-serif", ...cs }}
+    style={{ padding: '8px 12px', fontSize: '16px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: "'Outfit',system-ui,sans-serif", ...cs }}
     onFocus={e => e.target.style.borderColor = T.pri} onBlur={e => e.target.style.borderColor = T.border} {...p} />
 );
 
 // ── TextArea ──
 export const TArea = ({ value, onChange, placeholder, rows = 3, style: cs }) => (
   <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows}
-    style={{ padding: '7px 11px', fontSize: '13.5px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: "'Outfit',system-ui,sans-serif", lineHeight: 1.5, ...cs }}
+    style={{ padding: '8px 12px', fontSize: '16px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: "'Outfit',system-ui,sans-serif", lineHeight: 1.5, ...cs }}
     onFocus={e => e.target.style.borderColor = T.pri} onBlur={e => e.target.style.borderColor = T.border} />
 );
 
 // ── Select ──
 export const Sel = ({ value, onChange, options, placeholder, style: cs }) => (
   <select value={value} onChange={e => onChange(e.target.value)}
-    style={{ padding: '7px 30px 7px 10px', fontSize: '13.5px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', cursor: 'pointer', appearance: 'none', fontFamily: "'Outfit',system-ui,sans-serif", backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%239498A8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', ...cs }}>
+    style={{ padding: '8px 30px 8px 10px', fontSize: '16px', border: `1.5px solid ${T.border}`, borderRadius: T.radSm, backgroundColor: T.surface, color: T.text, outline: 'none', cursor: 'pointer', appearance: 'none', fontFamily: "'Outfit',system-ui,sans-serif", backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%239498A8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center', ...cs }}>
     {placeholder && <option value="">{placeholder}</option>}
     {options.map(o => <option key={o.value || o} value={o.value || o}>{o.label || o}</option>)}
   </select>
@@ -76,17 +76,29 @@ export const Card = ({ children, style: cs, onClick }) => (
   </div>
 );
 
-// ── Modal ──
+// ── Modal (responsive) ──
 export const Modal = ({ isOpen, onClose, title, children, width = 580 }) => {
   if (!isOpen) return null;
+  const isMob = window.innerWidth <= 768;
   return (
-    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(26,29,38,.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px', backdropFilter: 'blur(6px)' }} onClick={onClose}>
-      <div style={{ backgroundColor: T.surface, borderRadius: '16px', width: '100%', maxWidth: width, maxHeight: '88vh', display: 'flex', flexDirection: 'column', boxShadow: T.shadowLg }} onClick={e => e.stopPropagation()}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: `1px solid ${T.borderLt}` }}>
+    <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(26,29,38,.35)', display: 'flex', alignItems: isMob ? 'flex-end' : 'center', justifyContent: 'center', zIndex: 1000, padding: isMob ? '0' : '16px', backdropFilter: 'blur(6px)' }} onClick={onClose}>
+      <div style={{
+        backgroundColor: T.surface,
+        borderRadius: isMob ? '16px 16px 0 0' : '16px',
+        width: '100%', maxWidth: isMob ? '100%' : width,
+        maxHeight: isMob ? '92vh' : '88vh',
+        display: 'flex', flexDirection: 'column', boxShadow: T.shadowLg,
+      }} onClick={e => e.stopPropagation()}>
+        {isMob && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0 0' }}>
+            <div style={{ width: '36px', height: '4px', borderRadius: '2px', backgroundColor: T.border }} />
+          </div>
+        )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: isMob ? '14px 18px' : '18px 22px', borderBottom: `1px solid ${T.borderLt}` }}>
           <h2 style={{ fontSize: '17px', fontWeight: 750, color: T.text, margin: 0 }}>{title}</h2>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: T.textMut, padding: '4px', display: 'flex', fontSize: '18px' }}>✕</button>
         </div>
-        <div style={{ padding: '22px', overflowY: 'auto', flex: 1 }}>{children}</div>
+        <div style={{ padding: isMob ? '16px' : '22px', overflowY: 'auto', flex: 1, paddingBottom: isMob ? 'max(16px, env(safe-area-inset-bottom))' : '22px' }}>{children}</div>
       </div>
     </div>
   );
