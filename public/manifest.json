@@ -1,0 +1,8 @@
+{
+  "short_name": "CaseTrak",
+  "name": "CaseTrak — Store Operations",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2D5BFF",
+  "background_color": "#F0F1F5"
+}
