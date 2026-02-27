@@ -28,7 +28,7 @@ export default function Sidebar({ view, curUser, sideOpen, setSideOpen, goTo, on
         }}>
           {/* Logo */}
           <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid ${T.borderLt}`, display: 'flex', alignItems: 'center', gap: '9px' }}>
-            <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: `linear-gradient(135deg, ${T.pri}, ${T.purp})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '15px', fontWeight: 800 }}>⚒</div>
+            <img src="/logo.png" alt="HIO" style={{ width: '34px', height: '34px', borderRadius: '9px', objectFit: 'cover' }} />
             <div>
               <div style={{ fontSize: '15px', fontWeight: 800, lineHeight: 1.2 }}>CaseTrak</div>
               <div style={{ fontSize: '10.5px', color: T.textMut, fontWeight: 500 }}>Store Operations</div>
@@ -84,7 +84,7 @@ export default function Sidebar({ view, curUser, sideOpen, setSideOpen, goTo, on
       position: 'sticky', top: 0, zIndex: 50,
     }}>
       <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid ${T.borderLt}`, display: 'flex', alignItems: 'center', gap: '9px' }}>
-        <div style={{ width: '34px', height: '34px', borderRadius: '9px', background: `linear-gradient(135deg, ${T.pri}, ${T.purp})`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '15px', fontWeight: 800 }}>⚒</div>
+        <img src="/logo.png" alt="HIO" style={{ width: '34px', height: '34px', borderRadius: '9px', objectFit: 'cover' }} />
         <div>
           <div style={{ fontSize: '15px', fontWeight: 800, lineHeight: 1.2 }}>CaseTrak</div>
           <div style={{ fontSize: '10.5px', color: T.textMut, fontWeight: 500 }}>Store Operations</div>
