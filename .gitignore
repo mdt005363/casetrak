@@ -7,3 +7,5 @@ build/
 .env.production.local
 npm-debug.log*
 .DS_Store
+server/.env
+server/uploads/
